@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+             http://maven.apache.org/POM/4.0.0
+             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.dz</groupId>
+    <artifactId>bank</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>bank-nlu</artifactId>
+  <packaging>jar</packaging>
+  <name>bank-nlu</name>
+  <description>
+    语义理解层：32 类金融意图识别、槽位抽取、
+    Redis 多轮对话状态机（TTL 1800s）、
+    DFA / Trie 金融术语归一化、七步安检流水线、
+    L3 轻量 LLM 兜底（Prompt 注入检测 / PII 分级阻断）
+  </description>
+
+  <dependencies>
+
+    <!-- ========== 内部模块 ========== -->
+    <dependency>
+      <groupId>com.dz</groupId>
+      <artifactId>bank-common</artifactId>
+    </dependency>
+
+    <!-- ========== Web + 校验（七步安检 / 槽位 DTO） ========== -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!-- ========== Redis 多轮对话状态：槽位继承、知识库锁定、TTL 1800s ========== -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+    <!-- Redisson / 分布式锁 / 工具已在 bank-common 传递提供 -->
+
+    <!-- ========== 工具箱：DFA 敏感词、Trie 术语归一化、Limiter ========== -->
+    <dependency>
+      <groupId>cn.hutool</groupId>
+      <artifactId>hutool-all</artifactId>
+    </dependency>
+
+    <!--
+      ========== 本地轻量 LLM（Ollama）：七步安检 L3 兜底
+      检测 Prompt 注入 / PII 阻断，release 时按需开启
+    -->
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-starter-model-ollama</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+  </dependencies>
+
+</project>

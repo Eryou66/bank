@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+             http://maven.apache.org/POM/4.0.0
+             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- ================================================================= -->
+  <!-- Spring Boot 父工程：统一管理 Spring 全家桶版本、编译/打包插件        -->
+  <!-- ================================================================= -->
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.5.15</version>
+    <relativePath/>
+  </parent>
+
+  <!-- ================================================================= -->
+  <!-- 项目基本信息（当前是 Maven 父工程，不是可运行项目）                  -->
+  <!-- ================================================================= -->
+  <groupId>com.dz</groupId>
+  <artifactId>bank</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>bank</name>
+  <description>银行智能客服系统：NLU 语义理解 + RAG 检索增强 + 多轮对话 + 金融级合规校验</description>
+
+  <!-- ================================================================= -->
+  <!-- 子模块                                                             -->
+  <!-- 依赖方向：bootstrap → chat → nlu → common（只允许上层依赖下层）     -->
+  <!-- ================================================================= -->
+  <modules>
+    <module>bank-common</module>
+    <module>bank-nlu</module>
+    <module>bank-chat</module>
+    <module>bank-bootstrap</module>
+
+    <!-- 后续按需拆分（对应四条分流链路 RAG / API / Dialog / Human + 合规 + 知识库） -->
+    <!-- <module>bank-rag</module>          -->
+    <!-- <module>bank-knowledge</module>    知识库与文档入库         -->
+    <!-- <module>bank-dialog</module>       多轮对话状态机           -->
+    <!-- <module>bank-tool</module>         API 实时查询链路         -->
+    <!-- <module>bank-compliance</module>   事实核查 / 敏感词 / 引用完整性 -->
+  </modules>
+
+  <!-- ================================================================= -->
+  <!-- 全局属性：所有第三方版本只在这里维护一份                            -->
+  <!-- ================================================================= -->
+  <properties>
+    <!-- 编译环境 -->
+    <java.version>17</java.version>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <!-- 保留方法参数名：MyBatis-Plus / Spring AI / 反射取参场景必需 -->
+    <maven.compiler.parameters>true</maven.compiler.parameters>
+
+    <!-- 微服务：Spring Cloud 2025.0.x 对应 Spring Boot 3.5.x -->
+    <spring-cloud.version>2025.0.3</spring-cloud.version>
+    <spring-cloud-alibaba.version>2025.0.0.0</spring-cloud-alibaba.version>
+
+    <!-- 大模型：Spring AI 1.1.x 对应 Spring Boot 3.5.x -->
+    <spring-ai.version>1.1.8</spring-ai.version>
+    <spring-ai-alibaba.version>1.1.2.0</spring-ai-alibaba.version>
+
+    <!-- 持久层与中间件 -->
+    <mybatis-plus.version>3.5.15</mybatis-plus.version>
+    <redisson.version>3.52.0</redisson.version>
+    <milvus.version>2.5.8</milvus.version>
+
+    <!-- 检索：Lucene（BM25 双路召回中的精确匹配路，SmartCN 中文分词） -->
+    <lucene.version>10.1.0</lucene.version>
+
+    <!-- 工具与文档 -->
+    <hutool.version>5.8.42</hutool.version>
+    <guava.version>33.5.0-jre</guava.version>
+    <knife4j.version>4.5.0</knife4j.version>
+    <mapstruct.version>1.6.3</mapstruct.version>
+    <lombok.version>1.18.42</lombok.version>
+    <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+  </properties>
+
+  <!-- ================================================================= -->
+  <!-- 依赖版本统一管理（子模块引依赖一律不写 version）                     -->
+  <!-- ================================================================= -->
+  <dependencyManagement>
+    <dependencies>
+
+      <!-- ========== 1. 官方 BOM（import 顺序：先 Spring Cloud 再 Alibaba） ========== -->
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.alibaba.cloud</groupId>
+        <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+        <version>${spring-cloud-alibaba.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.ai</groupId>
+        <artifactId>spring-ai-bom</artifactId>
+        <version>${spring-ai.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.alibaba.cloud.ai</groupId>
+        <artifactId>spring-ai-alibaba-bom</artifactId>
+        <version>${spring-ai-alibaba.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- ========== 2. 本项目模块 ========== -->
+      <dependency>
+        <groupId>com.dz</groupId>
+        <artifactId>bank-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.dz</groupId>
+        <artifactId>bank-nlu</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.dz</groupId>
+        <artifactId>bank-chat</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- ========== 3. 持久层 ========== -->
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+        <version>${mybatis-plus.version}</version>
+      </dependency>
+
+      <!-- ========== 4. 缓存 / 分布式锁 ========== -->
+      <dependency>
+        <groupId>org.redisson</groupId>
+        <artifactId>redisson-spring-boot-starter</artifactId>
+        <version>${redisson.version}</version>
+      </dependency>
+      <!-- Spring Boot 3.5 必须用 -35，否则 Redisson Tuple 会 NoClassDefFoundError -->
+      <dependency>
+        <groupId>org.redisson</groupId>
+        <artifactId>redisson-spring-data-35</artifactId>
+        <version>${redisson.version}</version>
+      </dependency>
+
+      <!-- ========== 5. 向量检索（Milvus 显式锁版本，避免被传递依赖降级） ========== -->
+      <dependency>
+        <groupId>io.milvus</groupId>
+        <artifactId>milvus-sdk-java</artifactId>
+        <version>${milvus.version}</version>
+      </dependency>
+
+      <!-- ========== 6. 工具 / 文档 / 对象映射 ========== -->
+      <dependency>
+        <groupId>cn.hutool</groupId>
+        <artifactId>hutool-all</artifactId>
+        <version>${hutool.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.xiaoymin</groupId>
+        <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+        <version>${knife4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct</artifactId>
+        <version>${mapstruct.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct-processor</artifactId>
+        <version>${mapstruct.version}</version>
+      </dependency>
+
+      <!-- ========== 7. BM25 检索（Lucene）：与 Milvus 向量召回组成双路召回 ========== -->
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-core</artifactId>
+        <version>${lucene.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-queryparser</artifactId>
+        <version>${lucene.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-analysis-smartcn</artifactId>
+        <version>${lucene.version}</version>
+      </dependency>
+
+      <!--
+        ========== 8. DashScope 大模型 Starter ==========
+        注意：spring-ai-alibaba-bom 只管理 graph / agent / nacos 等模块，
+        并不包含 spring-ai-alibaba-starter-dashscope，所以这里必须显式锁版本，
+        版本号与 spring-ai-alibaba.version 保持同一个大版本（1.1.2.x）。
+      -->
+      <dependency>
+        <groupId>com.alibaba.cloud.ai</groupId>
+        <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
+        <version>${spring-ai-alibaba.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- ================================================================= -->
+  <!-- 依赖：所有模块都需要的通用依赖（Lombok / 测试）                     -->
+  <!-- ================================================================= -->
+  <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <!-- ================================================================= -->
+  <!-- 构建配置                                                          -->
+  <!-- ================================================================= -->
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- 编译：Java 17 + 注解处理器顺序（Lombok 必须在 MapStruct 之前生效） -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <release>${maven.compiler.release}</release>
+            <parameters>${maven.compiler.parameters}</parameters>
+            <encoding>${project.build.sourceEncoding}</encoding>
+            <annotationProcessorPaths>
+              <path>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+              </path>
+              <path>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok-mapstruct-binding</artifactId>
+                <version>${lombok-mapstruct-binding.version}</version>
+              </path>
+              <path>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${mapstruct.version}</version>
+              </path>
+            </annotationProcessorPaths>
+            <compilerArgs>
+              <arg>-Amapstruct.defaultComponentModel=spring</arg>
+              <arg>-Amapstruct.unmappedTargetPolicy=IGNORE</arg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+
+        <!-- 测试：控制台中文不乱码 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <argLine>-Dfile.encoding=UTF-8</argLine>
+          </configuration>
+        </plugin>
+
+        <!-- Spring Boot 打包插件：只在 bank-bootstrap 中真正启用 -->
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <configuration>
+            <excludes>
+              <exclude>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+              </exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <!--
+    说明：
+    1. 仓库镜像（阿里云）建议配置在 ~/.m2/settings.xml 的 <mirrors> 里，不写死在 pom 中，
+       便于团队/CI 各自替换私服地址。
+    2. 版本对应关系：
+       Spring Boot 3.5.x ←→ Spring Cloud 2025.0.x ←→ Spring Cloud Alibaba 2025.0.0.0
+       Spring Boot 3.5.x ←→ Spring AI 1.1.x ←→ Spring AI Alibaba 1.1.x
+       升级其中任意一个，必须同步核对其余三个版本。
+  -->
+
+</project>

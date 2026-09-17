@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+             http://maven.apache.org/POM/4.0.0
+             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.dz</groupId>
+    <artifactId>bank</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>bank-bootstrap</artifactId>
+  <packaging>jar</packaging>
+  <name>bank-bootstrap</name>
+  <description>
+    启动与装配模块：聚合 NLU 语义理解 + 对话编排 + 通用能力，
+    持久层（会话记录、知识库元数据、合规审计日志）、
+    API 文档（Knife4j）、运行监控（Actuator）、健康检查
+  </description>
+
+  <dependencies>
+
+    <!-- ========== 业务模块聚合：bank-chat 传递引入 bank-nlu、bank-common ========== -->
+    <dependency>
+      <groupId>com.dz</groupId>
+      <artifactId>bank-chat</artifactId>
+    </dependency>
+
+    <!-- ========== 持久层：会话记录 / 知识库元数据 / 合规审计日志 ========== -->
+    <dependency>
+      <groupId>com.baomidou</groupId>
+      <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+    </dependency>
+    <!-- MySQL 驱动版本由 spring-boot-starter-parent 统一管理 -->
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- ========== API 文档：Knife4j（OpenAPI3 增强，/doc.html） ========== -->
+    <dependency>
+      <groupId>com.github.xiaoymin</groupId>
+      <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+    </dependency>
+
+    <!-- ========== 运行监控：健康检查 / 指标（金融级运维要求） ========== -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <!--
+      ========== L3 兜底模型：启用 bank-nlu 中 optional 的 Ollama 集成 ==========
+      Prompt 注入检测 / PII 阻断的轻量本地大模型，本地未部署时可移除
+    -->
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-starter-model-ollama</artifactId>
+    </dependency>
+
+    <!-- Web / Redis / Redisson / 工具等均由 bank-chat → bank-nlu → bank-common 传递提供 -->
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!--
+        Spring Boot 可执行 jar：全工程唯一执行 repackage 的模块。
+        排除 Lombok 的配置已在父 pom pluginManagement 中统一声明。
+      -->
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

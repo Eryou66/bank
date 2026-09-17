@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+             http://maven.apache.org/POM/4.0.0
+             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.dz</groupId>
+    <artifactId>bank</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>bank-chat</artifactId>
+  <packaging>jar</packaging>
+  <name>bank-chat</name>
+  <description>
+    对话编排层：意图路由与 Query 增强引擎（RAG / API / DIALOG / HUMAN 四链路智能分流，
+    意图关键词注入、槽位值转 Metadata 过滤、时间感知加权三合一增强）、
+    RAG 检索引擎（Milvus 向量 + Lucene BM25 双路召回、RRF 融合与多级精排）、
+    基于 Redis 的多轮对话编排（槽位继承、知识库锁定）、
+    LLM 三级合规校验（事实核查 + 敏感词过滤 + 引用完整性）
+  </description>
+
+  <dependencies>
+
+    <!-- ========== 内部模块：NLU 输出（意图 + 置信度 + 槽位）驱动四链路分流 ========== -->
+    <dependency>
+      <groupId>com.dz</groupId>
+      <artifactId>bank-nlu</artifactId>
+    </dependency>
+
+    <!-- ========== Web：对话 REST API、SSE 流式回答（SseEmitter） ========== -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!--
+      ========== LLM 接入：Spring AI Alibaba（DashScope / 通义千问） ==========
+      ChatClient 调用、Prompt 模板管理、RAG Advisor（QuestionAnswerAdvisor）
+    -->
+    <dependency>
+      <groupId>com.alibaba.cloud.ai</groupId>
+      <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
+    </dependency>
+
+    <!--
+      ========== 向量召回路：Milvus（Spring AI VectorStore 抽象） ==========
+      底层 milvus-sdk-java 版本由父 pom 统一锁定，避免被传递依赖降级
+    -->
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-starter-vector-store-milvus</artifactId>
+    </dependency>
+
+    <!--
+      ========== BM25 精确召回路：Lucene 内存索引 ==========
+      与向量召回组成双路召回：金融术语 / 产品名 / 利率表编号等精确匹配场景
+      SmartCN 提供中文分词；多级精排（RRF 融合粗排 → 业务规则重排）
+    -->
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-queryparser</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-analysis-smartcn</artifactId>
+    </dependency>
+
+    <!-- ========== 知识库文档入库：Tika 解析 PDF 产品说明书 / 利率表 / 业务规程 ========== -->
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-tika-document-reader</artifactId>
+    </dependency>
+
+    <!--
+      ========== API 链路：OpenFeign 声明式调用银行核心系统 ==========
+      余额 / 明细 / 额度等实时查询（url 直连模式，无需注册中心）
+    -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-openfeign</artifactId>
+    </dependency>
+
+    <!-- ========== Redis：多轮对话状态（槽位继承 / 知识库锁定，TTL 1800s） ========== -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+
+    <!-- ========== 对象映射：检索结果 / 对话上下文 / 合规报告 DTO 转换 ========== -->
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+
+    <!--
+      Redisson / Hutool / Guava / Web 等已在 bank-nlu、bank-common 传递提供；
+      Lombok 与 spring-boot-starter-test 已在父 pom 统一引入。
+    -->
+  </dependencies>
+
+</project>

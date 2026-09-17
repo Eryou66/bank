@@ -60,11 +60,11 @@
       ========== 本地轻量 LLM（Ollama）：七步安检 L3 兜底
       检测 Prompt 注入 / PII 阻断，release 时按需开启
     -->
-    <dependency>
-      <groupId>org.springframework.ai</groupId>
-      <artifactId>spring-ai-starter-model-ollama</artifactId>
-      <optional>true</optional>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.springframework.ai</groupId>-->
+<!--      <artifactId>spring-ai-starter-model-ollama</artifactId>-->
+<!--      <optional>true</optional>-->
+<!--    </dependency>-->
 
   </dependencies>
 

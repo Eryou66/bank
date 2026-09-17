@@ -60,10 +60,10 @@
       ========== L3 兜底模型：启用 bank-nlu 中 optional 的 Ollama 集成 ==========
       Prompt 注入检测 / PII 阻断的轻量本地大模型，本地未部署时可移除
     -->
-    <dependency>
-      <groupId>org.springframework.ai</groupId>
-      <artifactId>spring-ai-starter-model-ollama</artifactId>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.springframework.ai</groupId>-->
+<!--      <artifactId>spring-ai-starter-model-ollama</artifactId>-->
+<!--    </dependency>-->
 
     <!-- Web / Redis / Redisson / 工具等均由 bank-chat → bank-nlu → bank-common 传递提供 -->
   </dependencies>

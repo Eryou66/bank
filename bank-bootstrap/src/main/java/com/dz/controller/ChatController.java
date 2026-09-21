@@ -4,6 +4,7 @@ import com.dz.api.ChatRequest;
 import com.dz.api.ChatResponse;
 import com.dz.api.R;
 import com.dz.context.RequestContext;
+import com.dz.security.SecurityCheck;
 import com.dz.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,6 +40,7 @@ public class ChatController {
     }
 
     @PostMapping("/chat")
+    @SecurityCheck
     @Operation(summary = "对话")
     public R<ChatResponse> chat(@Valid @RequestBody ChatRequest request){
         return R.ok(chatService.chat(request));

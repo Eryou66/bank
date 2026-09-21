@@ -20,6 +20,10 @@ public class RequestContext {
     private String deviceId;
     /** 客户端 IP（M1 IP 级限流 Key 用） */
     private String clientIp;
+    /** PII 命中最高级别：CRITICAL / HIGH / MEDIUM / LOW */
+    private String piiLevel;
+    /** 安检规范化后的 Query（术语归一化 + PII 脱敏结果），下游 NLU / RAG 直接用这个 */
+    private String normalizedQuery;
 
     private RequestContext(){}
 

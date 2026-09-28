@@ -89,3 +89,10 @@ logging:
     com.dz: debug
   pattern:
     console: "%d{HH:mm:ss.SSS} %-5level [%X{traceId}] %logger{36} - %msg%n"
+
+bank:
+  rate-limit:
+    user-per-minute: 20      # 用户级，Redis Lua 令牌桶
+    ip-per-minute: 100       # IP 级
+    device-per-minute: 50    # 设备级
+    global-qps: 5000         # 全局级，本地 Guava 令牌桶

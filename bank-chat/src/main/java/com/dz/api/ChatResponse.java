@@ -13,8 +13,12 @@ public class ChatResponse {
     private String answer;
     /** M2 起填真实意图，M0 固定 UNKNOWN */
     private String intent;
-    /** M2 起填真实链路（RAG/API/DIALOG/HUMAN），M0 固定 STUB */
+    /** 意图置信度0 ~ 1 */
+    private double confidence;
+    /** 分流链路： RAG / API / DIALOG / HUMAN */
     private String routeChain;
+    /** 反问话术或者兜底提示，无则为null */
+    private String guide;
     /** M3 起填可溯源的引用文档，满足金融审计要求 */
     private List<String> references;
     private long costMs;
